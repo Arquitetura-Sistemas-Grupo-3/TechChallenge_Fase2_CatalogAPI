@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Core/Core.csproj" />
+  <Project Path="Infra/Infra.csproj" />
+  <Project Path="WebAPI/WebAPI.csproj" />
+</Solution>
