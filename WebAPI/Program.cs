@@ -1,7 +1,5 @@
 using Core.Entidade;
-using Core.Messaging;
 using Core.Repository;
-using Infra.Messaging;
 using Core.Validation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -87,11 +85,6 @@ builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IRepository<Pedido>, EFRepository<Pedido>>();
 builder.Services.AddScoped<IBibliotecaRepository, BibliotecaRepository>();
 
-var rabbitSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>() ?? new RabbitMqSettings();
-builder.Services.AddSingleton(rabbitSettings);
-builder.Services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
-builder.Services.AddHostedService<PaymentProcessedConsumer>();
-
 builder.Services.AddTransient<CorrelationIdMiddleware>();
 #endregion
 
@@ -127,6 +120,13 @@ builder.Services.AddAuthorization(options =>
 #endregion
 
 var app = builder.Build();
+
+await using (var scope = app.Services.CreateAsyncScope()) {
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+}
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<LogMiddleware>();

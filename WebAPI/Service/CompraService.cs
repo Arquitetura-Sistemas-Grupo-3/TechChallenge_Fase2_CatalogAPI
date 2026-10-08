@@ -1,6 +1,5 @@
 using Core.Entidade;
 using Core.Events;
-using Core.Messaging;
 using Core.Output;
 using Core.Repository;
 using Infra.Exceptions;
@@ -13,20 +12,17 @@ namespace WebAPI.Service
         private readonly IJogoRepository _jogoRepository;
         private readonly IRepository<Pedido> _pedidoRepository;
         private readonly IBibliotecaRepository _bibliotecaRepository;
-        private readonly IEventPublisher _publisher;
         private readonly ILogger<CompraService> _logger;
 
         public CompraService(
             IJogoRepository jogoRepository,
             IRepository<Pedido> pedidoRepository,
             IBibliotecaRepository bibliotecaRepository,
-            IEventPublisher publisher,
             ILogger<CompraService> logger)
         {
             _jogoRepository = jogoRepository;
             _pedidoRepository = pedidoRepository;
             _bibliotecaRepository = bibliotecaRepository;
-            _publisher = publisher;
             _logger = logger;
         }
 
@@ -38,10 +34,7 @@ namespace WebAPI.Service
             var pedido = Pedido.Criar(userId, jogo);
             _pedidoRepository.Add(pedido);
 
-            _publisher.Publish(Queues.OrderPlaced,
-                new OrderPlacedEvent(pedido.Id, userId, jogo.Id, jogo.Preco));
-
-            _logger.LogInformation("OrderPlacedEvent publicado. Pedido={PedidoId} User={UserId} Jogo={JogoId}",
+            _logger.LogInformation("Pedido criado. Pedido={PedidoId} User={UserId} Jogo={JogoId}",
                 pedido.Id, userId, jogoId);
 
             return ServiceResponse.Ok("Compra iniciada. Aguardando processamento do pagamento");
