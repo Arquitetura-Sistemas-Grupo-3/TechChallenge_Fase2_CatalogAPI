@@ -13,6 +13,7 @@ using System.Text;
 using WebAPI.Interface;
 using WebAPI.Middleweres;
 using WebAPI.Service;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,16 @@ builder.Services.AddScoped<IRepository<Pedido>, EFRepository<Pedido>>();
 builder.Services.AddScoped<IBibliotecaRepository, BibliotecaRepository>();
 
 builder.Services.AddTransient<CorrelationIdMiddleware>();
+
+var factory = new ConnectionFactory {
+    HostName = builder.Configuration["RabbitMQ:Host"] ?? "localhost",
+    UserName = builder.Configuration["RabbitMQ:User"] ?? "guest",
+    Password = builder.Configuration["RabbitMQ:Password"] ?? "guest"
+};
+builder.Services.AddSingleton(await factory.CreateConnectionAsync());
+builder.Services.AddSingleton<EventPublisher>();
+builder.Services.AddHostedService<PaymentProcessedConsumer>();
+
 #endregion
 
 #region [Validation]

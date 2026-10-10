@@ -13,13 +13,19 @@ namespace WebAPI.Service
         private readonly IRepository<Pedido> _pedidoRepository;
         private readonly IBibliotecaRepository _bibliotecaRepository;
         private readonly ILogger<CompraService> _logger;
+        private readonly EventPublisher _publisher;
+        private readonly IConfiguration _configuration;
 
         public CompraService(
             IJogoRepository jogoRepository,
             IRepository<Pedido> pedidoRepository,
             IBibliotecaRepository bibliotecaRepository,
-            ILogger<CompraService> logger)
+            ILogger<CompraService> logger,
+            EventPublisher publisher,
+            IConfiguration configuration)
         {
+            _publisher = publisher;
+            _configuration = configuration;
             _jogoRepository = jogoRepository;
             _pedidoRepository = pedidoRepository;
             _bibliotecaRepository = bibliotecaRepository;
@@ -36,6 +42,10 @@ namespace WebAPI.Service
 
             _logger.LogInformation("Pedido criado. Pedido={PedidoId} User={UserId} Jogo={JogoId}",
                 pedido.Id, userId, jogoId);
+
+            await _publisher.PublishAsync(
+                _configuration["RabbitMQ:OrderPlacedQueue"] ?? "order-placed",
+                new OrderPlacedEvent(pedido.Id, userId, jogoId, pedido.Preco));
 
             return ServiceResponse.Ok("Compra iniciada. Aguardando processamento do pagamento");
         }
