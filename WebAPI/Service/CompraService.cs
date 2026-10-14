@@ -32,20 +32,24 @@ namespace WebAPI.Service
             _logger = logger;
         }
 
-        public async Task<ServiceResponse> IniciarCompra(int userId, int jogoId)
-        {
+        public async Task<ServiceResponse> IniciarCompra(int userId, int jogoId, string userEmail, string userRole, string? userName) {
             var jogo = await _jogoRepository.GetById(jogoId)
                 ?? throw new ExceptionJogoNaoEncontrado("Jogo não encontrado");
 
             var pedido = Pedido.Criar(userId, jogo);
             _pedidoRepository.Add(pedido);
 
-            _logger.LogInformation("Pedido criado. Pedido={PedidoId} User={UserId} Jogo={JogoId}",
-                pedido.Id, userId, jogoId);
-
             await _publisher.PublishAsync(
                 _configuration["RabbitMQ:OrderPlacedQueue"] ?? "order-placed",
-                new OrderPlacedEvent(pedido.Id, userId, jogoId, pedido.Preco));
+                new OrderPlacedEvent(
+                    pedido.Id,
+                    userId,
+                    jogoId,
+                    jogo.Nome,
+                    userEmail,
+                    userRole,
+                    userName,
+                    pedido.Preco));
 
             return ServiceResponse.Ok("Compra iniciada. Aguardando processamento do pagamento");
         }

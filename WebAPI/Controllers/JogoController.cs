@@ -2,6 +2,7 @@ using Core.Input;
 using Core.Output;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebAPI.Interface;
 
 namespace WebAPI.Controllers
@@ -67,15 +68,26 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(ServiceResponse), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [Authorize]
-        public async Task<IActionResult> Comprar([FromRoute] int id, [FromServices] ICompraService compraService)
-        {
-            var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+        public async Task<IActionResult> Comprar([FromRoute] int id, [FromServices] ICompraService compraService) {
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? User.FindFirst("sub")?.Value;
 
-            if (!int.TryParse(claim, out var userId))
+            if (!int.TryParse(idClaim, out var userId))
                 return Unauthorized();
 
-            var resposta = await compraService.IniciarCompra(userId, id);
+            var email = User.FindFirst(ClaimTypes.Email)?.Value
+                ?? User.FindFirst("email")?.Value;
+
+            var role = User.FindFirst(ClaimTypes.Role)?.Value
+                ?? User.FindFirst("role")?.Value;
+
+            var nome = User.FindFirst(ClaimTypes.Name)?.Value
+                ?? User.FindFirst("name")?.Value;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(role))
+                return Unauthorized();
+
+            var resposta = await compraService.IniciarCompra(userId, id, email, role, nome);
             return Accepted(resposta);
         }
 
