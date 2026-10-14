@@ -62,6 +62,10 @@ namespace WebAPI.Service
             if (pedido.Status != PedidoStatus.Pendente)
                 return;
 
+            _logger.LogInformation(
+            "Evento recebido: Order={OrderId} User={UserId} Game={GameId} Name={GameName} Email={UserEmail} Price={Price} Status={Status}",
+            evento.OrderId, evento.UserId, evento.GameId, evento.GameName, evento.UserEmail, evento.Price, evento.Status);
+
             if (evento.Status == PaymentStatus.Approved)
             {
                 pedido.Status = PedidoStatus.Aprovado;

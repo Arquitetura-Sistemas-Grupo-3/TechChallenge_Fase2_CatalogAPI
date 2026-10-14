@@ -12,7 +12,7 @@ namespace WebAPI.Service {
         IConfiguration configuration,
         ILogger<PaymentProcessedConsumer> logger) : BackgroundService {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-            var queue = configuration["RabbitMQ:PaymentProcessedQueue"] ?? "payment-processed";
+            var queue = configuration["RabbitMQ:PaymentProcessedQueue"] ?? "catalog-payment-processed";
 
             var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
             await channel.QueueDeclareAsync(queue, durable: true, exclusive: false, autoDelete: false, cancellationToken: stoppingToken);
