@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RabbitMQ.Client;
@@ -6,7 +7,8 @@ using RabbitMQ.Client;
 namespace WebAPI.Service {
     public class EventPublisher(IConnection connection) {
         public static readonly JsonSerializerOptions JsonOptions = new() {
-            Converters = { new JsonStringEnumConverter() }
+            Converters = { new JsonStringEnumConverter() },
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         public async Task PublishAsync<T>(string queue, T message) {

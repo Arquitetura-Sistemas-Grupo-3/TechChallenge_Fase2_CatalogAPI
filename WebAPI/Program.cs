@@ -60,15 +60,6 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-builder.Logging.AddJsonConsole(options =>
-{
-    options.IncludeScopes = true;
-});
-
-builder.Logging.Configure(options =>
-{
-    options.ActivityTrackingOptions = ActivityTrackingOptions.None;
-});
 
 #region [DB]
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
