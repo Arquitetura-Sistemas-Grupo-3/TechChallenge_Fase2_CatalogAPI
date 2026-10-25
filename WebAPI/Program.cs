@@ -76,6 +76,7 @@ builder.Services.AddScoped<IJogoService, JogoService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 builder.Services.AddScoped<IRepository<Pedido>, EFRepository<Pedido>>();
 builder.Services.AddScoped<IBibliotecaRepository, BibliotecaRepository>();
+builder.Services.AddScoped<IBibliotecaService, BibliotecaService>();
 
 builder.Services.AddTransient<CorrelationIdMiddleware>();
 
