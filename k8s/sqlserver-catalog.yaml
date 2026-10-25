@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-catalog
+  template:
+    metadata:
+      labels:
+        app: db-catalog
+    spec:
+      containers:
+        - name: db-catalog
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA          
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD    
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-api-secret
+                  key: MSSQL_SA_PASSWORD
+          resources:
+            requests:
+              memory: "1Gi"
+            limits:
+              memory: "2Gi"              
+          readinessProbe:
+            tcpSocket:
+              port: 1433                 
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: data
+          emptyDir: {}                   

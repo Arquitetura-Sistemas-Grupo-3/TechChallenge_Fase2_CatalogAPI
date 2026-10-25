@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-catalog                  
+spec:
+  selector:
+    app: db-catalog
+  ports:
+    - port: 1433
+      targetPort: 1433
