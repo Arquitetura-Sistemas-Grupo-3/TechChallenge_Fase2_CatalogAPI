@@ -63,7 +63,7 @@ builder.Services.AddSwaggerGen(options =>
 
 
 #region [DB]
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("CatalogAPI");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

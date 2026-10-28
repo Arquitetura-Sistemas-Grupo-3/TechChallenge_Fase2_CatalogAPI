@@ -15,7 +15,7 @@ namespace Infra.Repository
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("CatalogAPI");
         }
 
         public ApplicationDbContext(string connectionString)
